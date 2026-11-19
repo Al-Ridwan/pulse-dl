@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PulseDL — Studio MP3 Extractor &amp; Universal Video Downloader</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3v12" />
+          <path d="m7 10 5 5 5-5" />
+          <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+        </svg>
+      </div>
+      <div>
+        <span class="brand-name">PulseDL</span>
+        <span class="brand-tag">Local Media Studio</span>
+      </div>
+    </div>
+
+    <nav class="module-switcher" role="tablist" aria-label="Downloader Modules">
+      <button id="tab-mp3" class="module-tab active" role="tab" aria-selected="true" data-mode="mp3">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 18V5l12-2v13" />
+          <circle cx="6" cy="18" r="3" />
+          <circle cx="18" cy="16" r="3" />
+        </svg>
+        <div>
+          <span class="tab-title">Module 1: MP3 Studio</span>
+          <span class="tab-sub">YouTube &amp; Any Video → 320kbps MP3</span>
+        </div>
+      </button>
+
+      <button id="tab-video" class="module-tab" role="tab" aria-selected="false" data-mode="video">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="4" width="20" height="16" rx="3" />
+          <polygon points="10 9 15 12 10 15 10 9" fill="currentColor" />
+        </svg>
+        <div>
+          <span class="tab-title">Module 2: Universal Video</span>
+          <span class="tab-sub">Any Website → 4K / 1080p MP4</span>
+        </div>
+      </button>
+    </nav>
+
+    <div class="topbar-actions">
+      <div id="engine-status" class="engine-pill">
+        <span class="status-dot"></span>
+        <span id="engine-status-text">Checking engine...</span>
+      </div>
+      <button id="btn-open-folder" class="btn-secondary" title="Open local downloads folder in Explorer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+        </svg>
+        <span>Open Folder</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="studio-card">
+      <div class="module-header">
+        <div>
+          <span id="module-badge" class="badge badge-accent">MODULE 01 • AUDIO EXTRACTOR</span>
+          <h1 id="module-heading">High-Quality MP3 Audio Extractor</h1>
+          <p id="module-description">
+            Paste any YouTube link or video URL to extract crystal-clear 320 kbps MP3 audio with embedded cover art and ID3 tags.
+          </p>
+        </div>
+        <div class="supported-sites">
+          <span class="site-pill">YouTube</span>
+          <span class="site-pill">SoundCloud</span>
+          <span class="site-pill">TikTok</span>
+          <span class="site-pill">X / Twitter</span>
+          <span class="site-pill">Instagram</span>
+          <span class="site-pill">Vimeo</span>
+          <span class="site-pill">Reddit</span>
+          <span class="site-pill">+1000 sites</span>
+        </div>
+      </div>
+
+      <!-- URL Input Bar -->
+      <div class="url-bar-wrapper">
+        <div class="url-input-group">
+          <svg class="url-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+          </svg>
+          <input
+            id="url-input"
+            type="url"
+            placeholder="Paste YouTube or any video URL here (https://...)"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <button id="btn-paste" type="button" class="btn-ghost" title="Paste from clipboard">
+            Paste
+          </button>
+          <button id="btn-clear-url" type="button" class="btn-ghost hidden" title="Clear link">
+            ✕
+          </button>
+        </div>
+        <button id="btn-probe" type="button" class="btn-inspect">
+          <span id="probe-spinner" class="spinner hidden"></span>
+          <span id="probe-btn-text">Inspect Link</span>
+        </button>
+      </div>
+
+      <div id="alert-box" class="alert-box hidden" role="alert"></div>
+
+      <!-- Inspected Media Preview Card -->
+      <div id="media-preview" class="media-preview hidden">
+        <div class="preview-thumb-wrap">
+          <img id="preview-thumb" src="" alt="Media thumbnail" />
+          <span id="preview-duration" class="duration-pill">0:00</span>
+        </div>
+        <div class="preview-details">
+          <div class="preview-meta-top">
+            <span id="preview-site" class="badge badge-site">YouTube</span>
+            <span id="preview-uploader" class="preview-channel">Channel</span>
+            <span id="preview-audio-info" class="preview-stream-tag">Source Audio: 160 kbps</span>
+          </div>
+          <label class="custom-title-label" for="custom-title-input">Output Title / Filename</label>
+          <input
+            id="custom-title-input"
+            type="text"
+            class="custom-title-input"
+            placeholder="Custom filename (optional)"
+          />
+        </div>
+      </div>
+
+      <!-- MODULE 1 CONTROLS: MP3 EXTRACTOR -->
+      <div id="controls-mp3" class="module-controls">
+        <div class="control-section">
+          <label class="section-label">Audio Bitrate Quality</label>
+          <div class="quality-grid" id="mp3-bitrate-grid">
+            <label class="quality-card selected">
+              <input type="radio" name="mp3_bitrate" value="320" checked />
+              <span class="q-title">320 kbps</span>
+              <span class="q-sub">Studio Master • Best</span>
+            </label>
+            <label class="quality-card">
+              <input type="radio" name="mp3_bitrate" value="256" />
+              <span class="q-title">256 kbps</span>
+              <span class="q-sub">High Fidelity</span>
+            </label>
+            <label class="quality-card">
+              <input type="radio" name="mp3_bitrate" value="192" />
+              <span class="q-title">192 kbps</span>
+              <span class="q-sub">Balanced</span>
+            </label>
+            <label class="quality-card">
+              <input type="radio" name="mp3_bitrate" value="128" />
+              <span class="q-title">128 kbps</span>
+              <span class="q-sub">Compact Size</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="options-row">
+          <label class="toggle-chip">
+            <input type="checkbox" id="mp3-embed-thumb" checked />
+            <span>Embed Album Cover Art</span>
+          </label>
+          <label class="toggle-chip">
+            <input type="checkbox" id="mp3-embed-meta" checked />
+            <span>Embed Artist &amp; ID3 Tags</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- MODULE 2 CONTROLS: UNIVERSAL VIDEO DOWNLOADER -->
+      <div id="controls-video" class="module-controls hidden">
+        <div class="control-section">
+          <div class="section-label-row">
+            <label class="section-label">Video Resolution</label>
+            <span id="detected-res-hint" class="hint-text">Tip: Click "Inspect Link" to see exact sizes per resolution</span>
+          </div>
+          <div class="quality-grid" id="video-resolution-grid">
+            <label class="quality-card selected">
+              <input type="radio" name="video_resolution" value="best" checked />
+              <span class="q-title">Best Available</span>
+              <span class="q-sub">Up to 4K Ultra HD</span>
+            </label>
+            <label class="quality-card">
+              <input type="radio" name="video_resolution" value="1080" />
+              <span class="q-title">1080p Full HD</span>
+              <span class="q-sub">Crisp Standard</span>
+            </label>
+            <label class="quality-card">
+              <input type="radio" name="video_resolution" value="720" />
+              <span class="q-title">720p HD</span>
+              <span class="q-sub">Fast &amp; Sharp</span>
+            </label>
+            <label class="quality-card">
+              <input type="radio" name="video_resolution" value="480" />
+              <span class="q-title">480p SD</span>
+              <span class="q-sub">Data Saver</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="options-row">
+          <div class="inline-select-group">
+            <label for="video-container">Container Format:</label>
+            <select id="video-container">
+              <option value="mp4" selected>MP4 (Universal Playback)</option>
+              <option value="mkv">MKV (Matroska)</option>
+              <option value="webm">WebM</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Shared Optional Clip / Trim Controls + Primary Download Action -->
+      <div class="action-footer">
+        <div class="trim-group">
+          <span class="trim-label">Optional Clip Range:</span>
+          <input id="trim-start" type="text" placeholder="Start (e.g. 0:30)" class="trim-input" />
+          <span class="trim-sep">to</span>
+          <input id="trim-end" type="text" placeholder="End (e.g. 2:45)" class="trim-input" />
+        </div>
+
+        <button id="btn-download" type="button" class="btn-primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+            <path d="M12 3v12" />
+            <path d="m7 10 5 5 5-5" />
+            <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+          </svg>
+          <span id="btn-download-text">Extract 320 kbps MP3</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Inline Media Preview Player Modal/Drawer -->
+    <section id="player-drawer" class="player-drawer hidden">
+      <div class="player-header">
+        <div>
+          <span id="player-badge" class="badge badge-accent">NOW PLAYING</span>
+          <h3 id="player-title">Media Preview</h3>
+        </div>
+        <button id="btn-close-player" class="btn-ghost" title="Close player">✕ Close</button>
+      </div>
+      <div id="player-mount" class="player-mount"></div>
+    </section>
+
+    <!-- Active Queue & Local Library -->
+    <section class="library-section">
+      <div class="library-header">
+        <div>
+          <h2>Downloads &amp; Active Queue</h2>
+          <p class="library-sub">Files are saved directly to your computer and can also be played or saved from your browser.</p>
+        </div>
+        <div class="filter-pills" role="tablist">
+          <button class="filter-pill active" data-filter="all">All</button>
+          <button class="filter-pill" data-filter="mp3">MP3 Audio</button>
+          <button class="filter-pill" data-filter="video">Videos</button>
+        </div>
+      </div>
+
+      <div id="jobs-list" class="jobs-list">
+        <div class="empty-state">
+          <p>No downloads yet. Paste any link above to extract MP3 audio or download video.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>
+
